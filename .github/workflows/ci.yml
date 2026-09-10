@@ -24,7 +24,10 @@ jobs:
           cache: maven
          
       - name: Build and test with Maven
-        run: mvn clean verify  
+        run: mvn clean verify
+
+      - name: CI completed
+        run: echo "CI pipeline completed successfully"
 
 
       
