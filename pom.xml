@@ -28,6 +28,10 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.version>3.8.0</maven.compiler.version>
+
+    <sonar.organization>kadariravikiran</sonar.organization>
+    <sonar.projectKey>kadariravikiran_ecommerce-microservices</sonar.projectKey>
+
     <lombok.version>1.18.22</lombok.version>
     <map.struct.version>1.4.2.Final</map.struct.version>
     <jib.maven.plugin.version>3.2.0</jib.maven.plugin.version>
