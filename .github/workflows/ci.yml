@@ -29,6 +29,14 @@ jobs:
           workload_identity_provider: 'projects/887456464145/locations/global/workloadIdentityPools/ecommercepool/providers/github-provider'
           service_account: 'ecommerce-service-account@project-b1401e3c-6c22-44e2-ba6.iam.gserviceaccount.com'
 
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ecommerce-gke
+          location: asia-south1
+          project_id: project-b1401e3c-6c22-44e2-ba6
+          use_dns_endpoint: true
+
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet  
 
@@ -72,6 +80,18 @@ jobs:
             docker tag $service:latest asia-south1-docker.pkg.dev/project-b1401e3c-6c22-44e2-ba6/ecommerce-repo/$service:latest
             docker push asia-south1-docker.pkg.dev/project-b1401e3c-6c22-44e2-ba6/ecommerce-repo/$service:latest
           done
+
+      - name: Deploy to GKE
+        run: |
+          kubectl apply -f k8s-gke/namespace.yaml
+          kubectl apply -f k8s-gke/eureka-deployment.yaml
+          kubectl apply -f k8s-gke/eureka-service.yaml
+          kubectl apply -f k8s-gke/customer-deployment.yaml
+          kubectl apply -f k8s-gke/customer-service.yaml
+          kubectl apply -f k8s-gke/product-deployment.yaml
+          kubectl apply -f k8s-gke/product-service.yaml
+          kubectl apply -f k8s-gke/order-deployment.yaml
+          kubectl apply -f k8s-gke/order-service.yaml
 
 
       - name: CI completed

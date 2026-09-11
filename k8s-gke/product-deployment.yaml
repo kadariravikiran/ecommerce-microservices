@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: product
+  namespace: ecommerce
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: product
+
+  template:
+    metadata:
+      labels:
+        app: product
+
+    spec:
+      containers:
+        - name: product
+          image: asia-south1-docker.pkg.dev/project-b1401e3c-6c22-44e2-ba6/ecommerce-repo/product:latest
+          ports:
+            - containerPort: 8002

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: order
+  namespace: ecommerce
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: order
+
+  template:
+    metadata:
+      labels:
+        app: order
+
+    spec:
+      containers:
+        - name: order
+          image: asia-south1-docker.pkg.dev/project-b1401e3c-6c22-44e2-ba6/ecommerce-repo/order:latest
+          ports:
+            - containerPort: 8003
