@@ -30,6 +30,26 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+      - name: Build customer Docker image
+        run: docker build -t customer:latest ./customer
+
+      - name: Build product Docker image
+        run: docker build -t product:latest ./product
+
+      - name: Build order Docker image
+        run: docker build -t order:latest ./order
+
+      - name: Build notification Docker image
+        run: docker build -t notification:latest ./notification
+
+      - name: Build payment Docker image
+        run: docker build -t payment:latest ./payment
+
+      - name: Build eureka-server Docker image
+        run: docker build -t eureka-server:latest ./eureka-server
+
+      - name: Build gateway Docker image
+        run: docker build -t gateway:latest ./gateway
 
       - name: CI completed
         run: echo "CI pipeline completed successfully"
