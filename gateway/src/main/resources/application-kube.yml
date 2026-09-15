@@ -44,3 +44,9 @@ spring:
           uri: http://notification:8004
           predicates:
             - Path=/notification/api/v1/notifications/**
+
+eureka:
+  client:
+    enabled: false  
+
+            
