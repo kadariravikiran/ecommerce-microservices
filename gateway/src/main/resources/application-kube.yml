@@ -1,0 +1,46 @@
+server:
+  port: 8006
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+spring:
+  application:
+    name: gateway
+
+  zipkin:
+    base-url: http://zipkin:9411
+
+  cloud:
+    gateway:
+      routes:
+        - id: customer
+          uri: http://customer:8001
+          predicates:
+            - Path=/customer/api/v1/customers/**
+
+        - id: product
+          uri: http://product:8002
+          predicates:
+            - Path=/product/api/v1/products/**
+
+        - id: order
+          uri: http://order:8003
+          predicates:
+            - Path=/order/api/v1/orders/**
+
+        - id: payment
+          uri: http://payment:8005
+          predicates:
+            - Path=/payment/api/v1/payments/**
+
+        - id: notification
+          uri: http://notification:8004
+          predicates:
+            - Path=/notification/api/v1/notifications/**
