@@ -32,7 +32,7 @@ jobs:
       - name: Get GKE credentials
         uses: google-github-actions/get-gke-credentials@v2
         with:
-          cluster_name: ecommerce-gke
+          cluster_name: ecommerce-cluster
           location: asia-south1
           project_id: project-b1401e3c-6c22-44e2-ba6
           use_dns_endpoint: true
