@@ -52,6 +52,9 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+      - name: Build frontend Docker image
+        run: docker build -t frontend:latest ./frontend  
+
       - name: Build customer Docker image
         run: docker build -t customer:latest ./customer
 
@@ -75,7 +78,8 @@ jobs:
 
       - name: Tag and push Docker images
         run: |
-          for service in customer product order notification payment eureka-server gateway
+
+          for service in customer product order notification payment eureka-server gateway frontend
           do
             docker tag $service:latest asia-south1-docker.pkg.dev/project-b1401e3c-6c22-44e2-ba6/ecommerce-repo/$service:latest
             docker push asia-south1-docker.pkg.dev/project-b1401e3c-6c22-44e2-ba6/ecommerce-repo/$service:latest
@@ -92,6 +96,10 @@ jobs:
           kubectl apply -f k8s-gke/product-service.yaml
           kubectl apply -f k8s-gke/order-deployment.yaml
           kubectl apply -f k8s-gke/order-service.yaml
+
+          kubectl apply -f k8s-gke/frontend-deployment.yaml
+          kubectl apply -f k8s-gke/frontend-service.yaml
+          kubectl apply -f k8s-gke/ingress.yaml
 
 
       - name: CI completed
