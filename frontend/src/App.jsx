@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const API = {
   products: "/product/api/v1/products/list?page=1&limit=12",
@@ -10,6 +10,11 @@ function App() {
   const [products, setProducts] = useState([]);
   const [customer, setCustomer] = useState(null);
   const [order, setOrder] = useState(null);
+
+  const [cart, setCart] = useState([]);
+  const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [cartOpen, setCartOpen] = useState(false);
 
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [loadingCustomer, setLoadingCustomer] = useState(true);
@@ -109,103 +114,201 @@ function App() {
     }
   }
 
+  function addToCart(product) {
+    setCart((currentCart) => {
+      const existing = currentCart.find(
+        (item) => item.id === product.id
+      );
+
+      if (existing) {
+        return currentCart.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+
+      return [...currentCart, { ...product, quantity: 1 }];
+    });
+  }
+
+  function increaseQuantity(productId) {
+    setCart((currentCart) =>
+      currentCart.map((item) =>
+        item.id === productId
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      )
+    );
+  }
+
+  function decreaseQuantity(productId) {
+    setCart((currentCart) =>
+      currentCart
+        .map((item) =>
+          item.id === productId
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
+        )
+        .filter((item) => item.quantity > 0)
+    );
+  }
+
+  function removeFromCart(productId) {
+    setCart((currentCart) =>
+      currentCart.filter((item) => item.id !== productId)
+    );
+  }
+
+  const cartCount = cart.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
+
+  const cartTotal = cart.reduce(
+    (total, item) =>
+      total + Number(item.price || 0) * item.quantity,
+    0
+  );
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const matchesSearch = product.name
+        ?.toLowerCase()
+        .includes(search.toLowerCase());
+
+      const matchesCategory =
+        activeCategory === "All" ||
+        product.name
+          ?.toLowerCase()
+          .includes(activeCategory.toLowerCase());
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, search, activeCategory]);
+
   return (
     <div className="app">
       <header className="navbar">
-        <div className="brand">
+        <a href="#home" className="brand">
           <div className="brand-icon">E</div>
+
           <div>
             <h1>E-Commerce</h1>
-            <span>Microservices Store</span>
+            <span>Online Store</span>
           </div>
-        </div>
+        </a>
 
-        <nav>
+        <nav className="desktop-nav">
           <a href="#home">Home</a>
-          <a href="#products">Products</a>
-          <a href="#customer">Customer</a>
+          <a href="#products">Shop</a>
+          <a href="#customer">Account</a>
           <a href="#orders">Orders</a>
         </nav>
 
-        <div className="cart">
-          🛒 <span>{products.length}</span>
+        <div className="nav-actions">
+          <button
+            className="cart-button"
+            onClick={() => setCartOpen(true)}
+            type="button"
+            aria-label="Open shopping cart"
+          >
+            🛒
+            {cartCount > 0 && (
+              <span className="cart-badge">{cartCount}</span>
+            )}
+          </button>
         </div>
       </header>
 
       <main>
         <section className="hero" id="home">
           <div className="hero-content">
-            <p className="eyebrow">CLOUD-NATIVE E-COMMERCE</p>
+            <span className="hero-label">
+              NEW COLLECTION
+            </span>
 
             <h2>
-              Shop smarter.
+              Find something
               <br />
-              <span>Built for scale.</span>
+              <span>you'll love.</span>
             </h2>
 
-            <p className="hero-text">
-              A modern e-commerce experience powered by Spring Boot
-              microservices, Docker, Kubernetes and Google Cloud.
+            <p>
+              Discover quality products at prices you'll love.
+              Shop our latest collection today.
             </p>
 
             <a href="#products" className="hero-button">
-              Explore Products →
+              Shop Now →
             </a>
           </div>
 
-          <div className="hero-card">
-            <div className="hero-card-top">
-              <span>☁️</span>
-              <span>GKE</span>
-            </div>
-
-            <div className="architecture-mini">
-              <div>GitHub</div>
-              <span>→</span>
-              <div>CI/CD</div>
-              <span>→</span>
-              <div>GKE</div>
-            </div>
-
-            <div className="status">
-              <span className="status-dot"></span>
-              All systems operational
+          <div className="hero-visual">
+            <div className="hero-product">
+              <span>✨</span>
+              <strong>Fresh arrivals</strong>
+              <small>Explore our collection</small>
             </div>
           </div>
         </section>
 
-        <section className="stats">
-          <div>
-            <strong>{products.length || "—"}</strong>
-            <span>Products Loaded</span>
+        <section className="category-section">
+          <div className="category-header">
+            <h2>Shop by category</h2>
           </div>
 
-          <div>
-            <strong>7</strong>
-            <span>Microservices</span>
-          </div>
-
-          <div>
-            <strong>GKE</strong>
-            <span>Cloud Platform</span>
-          </div>
-
-          <div>
-            <strong>CI/CD</strong>
-            <span>Automated Delivery</span>
+          <div className="category-list">
+            {[
+              "All",
+              "Clothing",
+              "Shoes",
+              "Home",
+              "Electronics"
+            ].map((category) => (
+              <button
+                key={category}
+                type="button"
+                className={
+                  activeCategory === category
+                    ? "category-button active"
+                    : "category-button"
+                }
+                onClick={() => setActiveCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
           </div>
         </section>
 
-        <section className="section" id="products">
+        <section className="products-section" id="products">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">OUR COLLECTION</p>
+              <span className="section-label">
+                OUR COLLECTION
+              </span>
               <h2>Featured Products</h2>
             </div>
 
-            <button onClick={loadProducts} className="refresh-button">
+            <button
+              className="refresh-button"
+              onClick={loadProducts}
+              type="button"
+            >
               ↻ Refresh
             </button>
+          </div>
+
+          <div className="search-box">
+            <span>🔍</span>
+
+            <input
+              type="search"
+              placeholder="Search products..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
           </div>
 
           {loadingProducts && (
@@ -219,22 +322,30 @@ function App() {
             <div className="error-box">
               <strong>Unable to load products</strong>
               <p>{productError}</p>
-              <small>
-                The Product microservice or database may currently be
-                unavailable.
-              </small>
+
+              <button
+                type="button"
+                onClick={loadProducts}
+              >
+                Try Again
+              </button>
             </div>
           )}
 
-          {!loadingProducts && !productError && products.length === 0 && (
-            <div className="message">
-              No products were returned by the Product service.
-            </div>
-          )}
+          {!loadingProducts &&
+            !productError &&
+            filteredProducts.length === 0 && (
+              <div className="message">
+                No products found.
+              </div>
+            )}
 
           <div className="product-grid">
-            {products.map((product) => (
-              <article className="product-card" key={product.id}>
+            {filteredProducts.map((product) => (
+              <article
+                className="product-card"
+                key={product.id}
+              >
                 <div className="product-image">
                   <img
                     src={
@@ -246,16 +357,30 @@ function App() {
                 </div>
 
                 <div className="product-info">
-                  <span className="product-category">PRODUCT</span>
+                  <span className="product-category">
+                    COLLECTION
+                  </span>
 
-                  <h3>{product.name || "Unnamed Product"}</h3>
+                  <h3>
+                    {product.name || "Unnamed Product"}
+                  </h3>
+
+                  <div className="product-rating">
+                    ★★★★★
+                    <span>4.8</span>
+                  </div>
 
                   <div className="product-bottom">
                     <strong>
                       ${Number(product.price || 0).toFixed(2)}
                     </strong>
 
-                    <button type="button">View →</button>
+                    <button
+                      type="button"
+                      onClick={() => addToCart(product)}
+                    >
+                      Add to Cart
+                    </button>
                   </div>
                 </div>
               </article>
@@ -263,142 +388,236 @@ function App() {
           </div>
         </section>
 
-        <section className="dashboard-section">
+        <section className="account-section">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">ACCOUNT</p>
-              <h2>Customer Dashboard</h2>
+              <span className="section-label">
+                YOUR ACCOUNT
+              </span>
+              <h2>Account & Orders</h2>
             </div>
           </div>
 
-          <div className="dashboard-grid">
-            <div className="dashboard-card" id="customer">
-              <div className="card-icon">👤</div>
+          <div className="account-grid">
+            <div className="account-card" id="customer">
+              <div className="account-card-icon">👤</div>
 
               <div>
-                <p className="card-label">CUSTOMER PROFILE</p>
+                <span className="card-label">
+                  CUSTOMER PROFILE
+                </span>
 
-                {loadingCustomer && <p>Loading customer...</p>}
+                {loadingCustomer && (
+                  <p>Loading account...</p>
+                )}
 
                 {customerError && (
-                  <p className="error-text">{customerError}</p>
+                  <p className="error-text">
+                    {customerError}
+                  </p>
                 )}
 
-                {!loadingCustomer && !customerError && customer && (
-                  <>
-                    <h3>{customer.name}</h3>
-
-                    <p>{customer.email}</p>
-
-                    <p>{customer.phone}</p>
-
-                    <p>{customer.address}</p>
-                  </>
-                )}
+                {!loadingCustomer &&
+                  !customerError &&
+                  customer && (
+                    <>
+                      <h3>{customer.name}</h3>
+                      <p>{customer.email}</p>
+                      <p>{customer.phone}</p>
+                      <p>{customer.address}</p>
+                    </>
+                  )}
               </div>
             </div>
 
-            <div className="dashboard-card" id="orders">
-              <div className="card-icon">📦</div>
+            <div className="account-card" id="orders">
+              <div className="account-card-icon">📦</div>
 
               <div>
-                <p className="card-label">RECENT ORDER</p>
+                <span className="card-label">
+                  RECENT ORDER
+                </span>
 
-                {loadingOrder && <p>Loading order...</p>}
+                {loadingOrder && (
+                  <p>Loading order...</p>
+                )}
 
                 {orderError && (
-                  <p className="error-text">{orderError}</p>
+                  <p className="error-text">
+                    {orderError}
+                  </p>
                 )}
 
-                {!loadingOrder && !orderError && order && (
-                  <>
-                    <h3>Order #{order.id}</h3>
-
-                    <p>
-                      Customer ID: {order.customerId}
-                    </p>
-
-                    <p>
-                      Product ID: {order.productId}
-                    </p>
-
-                    <p>
-                      Amount: ${Number(order.amount || 0).toFixed(2)}
-                    </p>
-
-                    <p>
-                      {order.createAt
-                        ? new Date(order.createAt).toLocaleString()
-                        : "Date unavailable"}
-                    </p>
-                  </>
-                )}
+                {!loadingOrder &&
+                  !orderError &&
+                  order && (
+                    <>
+                      <h3>Order #{order.id}</h3>
+                      <p>
+                        Customer ID: {order.customerId}
+                      </p>
+                      <p>
+                        Product ID: {order.productId}
+                      </p>
+                      <p>
+                        Amount: $
+                        {Number(order.amount || 0).toFixed(2)}
+                      </p>
+                      <p>
+                        {order.createAt
+                          ? new Date(
+                              order.createAt
+                            ).toLocaleString()
+                          : "Date unavailable"}
+                      </p>
+                    </>
+                  )}
               </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="technology">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">ENGINEERING</p>
-              <h2>Built with Modern DevOps</h2>
-            </div>
-          </div>
-
-          <div className="technology-grid">
-            <div className="technology-card">
-              <div className="tech-icon">☁️</div>
-              <h3>Google Cloud</h3>
-              <p>
-                Application infrastructure deployed on Google Kubernetes
-                Engine.
-              </p>
-            </div>
-
-            <div className="technology-card">
-              <div className="tech-icon">🐳</div>
-              <h3>Docker</h3>
-              <p>
-                Each microservice is packaged as an independent container
-                image.
-              </p>
-            </div>
-
-            <div className="technology-card">
-              <div className="tech-icon">⚙️</div>
-              <h3>CI/CD</h3>
-              <p>
-                GitHub Actions automates build, quality checks, image
-                publishing and deployment.
-              </p>
-            </div>
-
-            <div className="technology-card">
-              <div className="tech-icon">☸️</div>
-              <h3>Kubernetes</h3>
-              <p>
-                Services are deployed and managed using Kubernetes
-                workloads and services.
-              </p>
             </div>
           </div>
         </section>
       </main>
 
-      <footer>
-        <div className="footer-brand">
-          <div className="brand-icon">E</div>
-          <div>
-            <strong>E-Commerce Microservices</strong>
-            <span>Cloud-Native Application</span>
-          </div>
-        </div>
+      {cartOpen && (
+        <div
+          className="cart-overlay"
+          onClick={() => setCartOpen(false)}
+        >
+          <aside
+            className="cart-drawer"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="cart-header">
+              <div>
+                <span className="section-label">
+                  YOUR SHOPPING BAG
+                </span>
+                <h2>Cart ({cartCount})</h2>
+              </div>
 
-        <p>
-          Built with Spring Boot · React · Docker · Kubernetes · Google Cloud
-        </p>
-      </footer>
+              <button
+                type="button"
+                className="close-cart"
+                onClick={() => setCartOpen(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            {cart.length === 0 ? (
+              <div className="empty-cart">
+                <div>🛒</div>
+                <h3>Your cart is empty</h3>
+                <p>
+                  Add some products to get started.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCartOpen(false);
+                    document
+                      .getElementById("products")
+                      ?.scrollIntoView({
+                        behavior: "smooth"
+                      });
+                  }}
+                >
+                  Start Shopping
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="cart-items">
+                  {cart.map((item) => (
+                    <div
+                      className="cart-item"
+                      key={item.id}
+                    >
+                      <img
+                        src={
+                          item.image ||
+                          `https://picsum.photos/seed/cart-${item.id}/120/120`
+                        }
+                        alt={item.name}
+                      />
+
+                      <div className="cart-item-info">
+                        <h3>{item.name}</h3>
+
+                        <strong>
+                          $
+                          {Number(item.price || 0).toFixed(2)}
+                        </strong>
+
+                        <div className="quantity-controls">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              decreaseQuantity(item.id)
+                            }
+                          >
+                            −
+                          </button>
+
+                          <span>{item.quantity}</span>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              increaseQuantity(item.id)
+                            }
+                          >
+                            +
+                          </button>
+
+                          <button
+                            type="button"
+                            className="remove-button"
+                            onClick={() =>
+                              removeFromCart(item.id)
+                            }
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="cart-summary">
+                  <div>
+                    <span>Subtotal</span>
+                    <strong>
+                      ${cartTotal.toFixed(2)}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>Shipping</span>
+                    <strong>Free</strong>
+                  </div>
+
+                  <div className="cart-total">
+                    <span>Total</span>
+                    <strong>
+                      ${cartTotal.toFixed(2)}
+                    </strong>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="checkout-button"
+                  >
+                    Proceed to Checkout
+                  </button>
+                </div>
+              </>
+            )}
+          </aside>
+        </div>
+      )}
     </div>
   );
 }
