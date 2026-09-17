@@ -61,11 +61,6 @@
             <version>1.9.2</version>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk</artifactId>
-            <version>1.12.276</version>
-        </dependency>
-        <dependency>
             <groupId>dev.nano</groupId>
             <artifactId>amqp</artifactId>
             <version>1.0-SNAPSHOT</version>
@@ -169,13 +164,7 @@
                                     <tag>${image.custom.tag}</tag>
                                     <tag>latest</tag>
                                 </tags>
-                            </to>
-                            <container>
-                                <environment>
-                                    <ACCESS_KEY_BUCKET>${app.env.var1}</ACCESS_KEY_BUCKET>
-                                    <SECRET_KEY_BUCKET>${app.env.var2}</SECRET_KEY_BUCKET>
-                                </environment>
-                            </container>
+                            </to
                         </configuration>
                         <executions>
                             <execution>
