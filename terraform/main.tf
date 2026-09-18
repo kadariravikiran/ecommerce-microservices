@@ -18,7 +18,7 @@ resource "google_container_node_pool" "ecommerce_nodes" {
   cluster  = google_container_cluster.ecommerce.name
   project  = var.project_id
 
-  node_count = 3
+  node_count = 1
 
   node_config {
     machine_type = "e2-medium"
