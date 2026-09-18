@@ -21,7 +21,7 @@ public class NotificationController {
 
     @GetMapping(
         path = "/{notificationId}",
-        produces={MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE}
+        produces=MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<NotificationDTO> getNotification(@PathVariable("notificationId") Long notificationId) {
         log.info("Retrieving notification with id {}", notificationId);
@@ -33,7 +33,7 @@ public class NotificationController {
 
     @GetMapping(
         path = "/all",
-        produces={MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE}
+        produces={MediaType.APPLICATION_JSON_VALUE}
     )
     public ResponseEntity<List<NotificationDTO>> getAllNotification() {
         log.info("Retrieving all notifications");
@@ -49,3 +49,4 @@ public class NotificationController {
         notificationService.sendNotification(notificationRequest);
     }
 }
+
