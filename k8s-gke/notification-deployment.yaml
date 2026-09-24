@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: notification
+  namespace: ecommerce
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: notification
+
+  template:
+    metadata:
+      labels:
+        app: notification
+
+    spec:
+      containers:
+        - name: notification
+          image: asia-south1-docker.pkg.dev/project-b1401e3c-6c22-44e2-ba6/ecommerce-repo/notification:latest
+
+          ports:
+            - containerPort: 8004
+
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: kube
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
